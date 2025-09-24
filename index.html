@@ -3,7 +3,14 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Vanadhikar Map</title>
+    <title>Vanadhikar Area Mapper</title>
+
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+    />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
     <style>
       /* --- General Body and Font Styles --- */
       * {
@@ -11,16 +18,20 @@
         margin: 0;
         padding: 0;
       }
+      html,
       body {
+        height: 100%;
+        overflow: hidden;
         font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
           Helvetica, Arial, sans-serif;
+      }
+      body {
         display: flex;
         flex-direction: column;
-        height: 100vh;
-        overflow: hidden; /* Prevents scrolling on the body */
         background-color: #f9f9f9;
       }
-      /* --- Header & Navigation --- */
+
+      /* --- Header & Navigation (From Your Code) --- */
       header {
         position: sticky;
         top: 0;
@@ -66,45 +77,61 @@
         outline: 2px solid #12c412;
         outline-offset: 2px;
       }
+
       /* --- Main Content Area --- */
-      #map {
+      .container {
         display: flex;
         flex-grow: 1;
+        /* Adjusted height to account for the new, taller header */
         height: calc(100vh - 117px);
       }
-      /* --- Left Sidebar (Controls) --- */
-      #left {
-        flex-basis: 300px;
-        flex-shrink: 0;
+
+      /* --- Sidebar for Input Form --- */
+      .sidebar {
+        flex-basis: 380px;
         padding: 1.5rem;
         background-color: #ffffff;
         border-right: 1px solid #e0e0e0;
         overflow-y: auto;
       }
-      #left form label {
-        font-weight: 600;
-        display: block;
-        margin-bottom: 0.5rem;
+      .sidebar h2 {
+        margin-bottom: 1.5rem;
         color: #333;
       }
-      #left form select {
+      .form-group {
+        margin-bottom: 1rem;
+      }
+      .form-group label {
+        display: block;
+        margin-bottom: 0.5rem;
+        font-weight: 600;
+        color: #555;
+      }
+      .form-group input {
         width: 100%;
         padding: 0.75rem;
         border: 1px solid #ccc;
         border-radius: 5px;
         font-size: 1rem;
-        background-color: #fff;
-        cursor: pointer;
       }
-      #left form select:focus {
-        outline: none;
-        border-color: #12c412;
-        box-shadow: 0 0 0 2px rgba(18, 196, 18, 0.2);
+      fieldset {
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        padding: 1rem;
+        margin-bottom: 1rem;
       }
-      #left form input[type="button"] {
+      legend {
+        font-weight: bold;
+        color: #333;
+        padding: 0 0.5rem;
+      }
+      .coord-pair {
+        display: flex;
+        gap: 0.5rem;
+      }
+      button {
         width: 100%;
         padding: 0.8rem;
-        margin-top: 1rem;
         font-size: 1rem;
         font-weight: 700;
         color: #ffffff;
@@ -114,18 +141,27 @@
         cursor: pointer;
         transition: background-color 0.2s ease;
       }
-      #left form input[type="button"]:hover {
+      button:hover {
         background-color: #10a310;
       }
-      /* --- Right Side (Map Display) --- */
-      #right {
+
+      /* --- Map Container --- */
+      #map {
         flex-grow: 1;
-        display: flex;
-      }
-      #right iframe {
-        width: 100%;
         height: 100%;
-        border: none;
+      }
+
+      /* Custom style for the permanent labels (tooltips) */
+      .leaflet-tooltip-permanent {
+        background: rgba(255, 255, 255, 0.85);
+        border: 1px solid #12c412;
+        border-radius: 4px;
+        color: #333;
+        font-weight: bold;
+        font-size: 14px;
+        padding: 5px 10px;
+        white-space: nowrap;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
       }
     </style>
   </head>
@@ -136,11 +172,7 @@
         role="banner"
         aria-label="Government of India, VanAdhikar and FRA Atlas"
       >
-        <img
-          src="./Assests/satyamev-jayate.jpg"
-          alt="Government Emblem"
-          aria-hidden="true"
-        />
+        <img src="./Assests/satyamev-jayate.jpg" alt="Government Emblem" />
         <div>
           <div style="font-size: medium; color: rgb(18, 196, 18)">
             वन अधिकार नक्शा सहायक
@@ -168,65 +200,188 @@
       </nav>
     </header>
 
-    <div id="map">
-      <div id="left">
-        <form>
-          <label for="state"> Select State: </label>
-          <select name="state" id="state">
-            <option value="Telangana" selected>Telangana</option>
-            <option value="Uttar Pradesh">Uttar Pradesh</option>
-            <option value="Bihar">Bihar</option>
-            <option value="Madhya Pradesh">Madhya Pradesh</option>
-          </select>
-          <br /><br />
-          <input type="button" value="Show" />
+    <div class="container">
+      <div class="sidebar">
+        <h2>Mark an Area</h2>
+        <form id="area-form">
+          <div class="form-group">
+            <label for="area-name">Name of the Area:</label>
+            <input
+              type="text"
+              id="area-name"
+              placeholder="e.g., North Field"
+              required
+            />
+          </div>
+
+          <fieldset>
+            <legend>Point 1</legend>
+            <div class="coord-pair">
+              <input
+                type="number"
+                step="any"
+                class="lat"
+                placeholder="Latitude"
+                required
+              />
+              <input
+                type="number"
+                step="any"
+                class="lng"
+                placeholder="Longitude"
+                required
+              />
+            </div>
+          </fieldset>
+          <fieldset>
+            <legend>Point 2</legend>
+            <div class="coord-pair">
+              <input
+                type="number"
+                step="any"
+                class="lat"
+                placeholder="Latitude"
+                required
+              />
+              <input
+                type="number"
+                step="any"
+                class="lng"
+                placeholder="Longitude"
+                required
+              />
+            </div>
+          </fieldset>
+          <fieldset>
+            <legend>Point 3</legend>
+            <div class="coord-pair">
+              <input
+                type="number"
+                step="any"
+                class="lat"
+                placeholder="Latitude"
+                required
+              />
+              <input
+                type="number"
+                step="any"
+                class="lng"
+                placeholder="Longitude"
+                required
+              />
+            </div>
+          </fieldset>
+          <fieldset>
+            <legend>Point 4</legend>
+            <div class="coord-pair">
+              <input
+                type="number"
+                step="any"
+                class="lat"
+                placeholder="Latitude"
+                required
+              />
+              <input
+                type="number"
+                step="any"
+                class="lng"
+                placeholder="Longitude"
+                required
+              />
+            </div>
+          </fieldset>
+
+          <button type="submit">Mark and Save Area</button>
         </form>
       </div>
-      <div id="right">
-        <iframe
-          src="http://tgracgis.telangana.gov.in/Bhunaksha/BN/home.aspx"
-          frameborder="0"
-        ></iframe>
-      </div>
+
+      <div id="map"></div>
     </div>
+
     <script>
-      // Wait until the DOM is fully loaded before running the script
       document.addEventListener("DOMContentLoaded", () => {
-        // Get the necessary HTML elements
-        const stateSelect = document.getElementById("state");
-        const showButton = document.querySelector('input[type="button"]');
-        const mapFrame = document.querySelector("#right iframe");
+        const initialCoords = [26.5615, 82.5541]; // Centered on Bhautipratappur, UP
+        const map = L.map("map").setView(initialCoords, 13);
+        L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+          attribution:
+            '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+        }).addTo(map);
 
-        // Create a map of state names to their corresponding Bhunaksha URLs
-        const stateUrls = {
-          Telangana: "https://tgracgis.telangana.gov.in/Bhunaksha/BN/home.aspx",
-          "Uttar Pradesh": "https://upbhunaksha.gov.in/",
-          Bihar: "https://bhunaksha.bihar.gov.in/10/indexmain.jsp",
-          "Madhya Pradesh": "https://mpbhulekh.gov.in/mpbhunaksha.do",
-        };
+        const polygonsDataKey = "userPolygons";
 
-        // Define the function that updates the map
-        const updateMap = () => {
-          // Get the value of the currently selected option
-          const selectedState = stateSelect.value;
-          // Find the corresponding URL from our map
-          const newUrl = stateUrls[selectedState];
-          // Check if a valid URL was found and update the iframe's src
-          if (newUrl) {
-            console.log(`Loading map for: ${selectedState}`); // For debugging
-            mapFrame.src = newUrl;
-          } else {
-            console.error(`URL for state "${selectedState}" not found.`);
+        function addAreaToMap(name, points) {
+          const polygon = L.polygon(points, {
+            color: "#12c412",
+            weight: 2,
+          }).addTo(map);
+          polygon
+            .bindTooltip(name, {
+              permanent: true,
+              direction: "center",
+              className: "area-label",
+            })
+            .openTooltip();
+          polygon.bindPopup(`<b>${name}</b>`);
+          return polygon;
+        }
+
+        function loadAreas() {
+          const savedPolygons = sessionStorage.getItem(polygonsDataKey);
+          if (savedPolygons) {
+            const polygons = JSON.parse(savedPolygons);
+            polygons.forEach((poly) => addAreaToMap(poly.name, poly.points));
           }
-        };
+        }
 
-        // ✅ **THIS IS THE CORRECTED PART** ✅
-        // Add a 'change' event listener to the state dropdown
-        stateSelect.addEventListener("change", updateMap);
+        loadAreas();
 
-        // This listener for the button is now redundant, but we can leave it
-        // in case the user prefers clicking the button.
-        showButton.addEventListener("click", updateMap);
+        const form = document.getElementById("area-form");
+        form.addEventListener("submit", (event) => {
+          event.preventDefault();
+          const areaName = document.getElementById("area-name").value;
+          const latInputs = document.querySelectorAll(".lat");
+          const lngInputs = document.querySelectorAll(".lng");
+          const points = [];
+          let isValid = true;
+
+          for (let i = 0; i < latInputs.length; i++) {
+            const lat = parseFloat(latInputs[i].value);
+            const lng = parseFloat(lngInputs[i].value);
+            if (
+              isNaN(lat) ||
+              isNaN(lng) ||
+              lat < -90 ||
+              lat > 90 ||
+              lng < -180 ||
+              lng > 180
+            ) {
+              isValid = false;
+              break;
+            }
+            points.push([lat, lng]);
+          }
+
+          if (!isValid || points.length < 4) {
+            alert("Please enter 4 valid coordinate pairs.");
+            return;
+          }
+          if (!areaName) {
+            alert("Please enter a name for the area.");
+            return;
+          }
+
+          const newPolygon = addAreaToMap(areaName, points);
+          const existingPolygons =
+            JSON.parse(sessionStorage.getItem(polygonsDataKey)) || [];
+          existingPolygons.push({ name: areaName, points: points });
+          sessionStorage.setItem(
+            polygonsDataKey,
+            JSON.stringify(existingPolygons)
+          );
+
+          map.fitBounds(newPolygon.getBounds());
+          form.reset();
+        });
       });
     </script>
   </body>
