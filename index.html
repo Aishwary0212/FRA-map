@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=\, initial-scale=1.0" />
+    <title>Vanadhikar Map</title>
+    <style>
+      /* --- General Body and Font Styles --- */
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+          Helvetica, Arial, sans-serif;
+        display: flex;
+        flex-direction: column;
+        height: 100vh;
+        overflow: hidden; /* Prevents scrolling on the body */
+        background-color: #f9f9f9;
+      }
+
+      /* --- Header & Navigation (Refined from your HTML) --- */
+      header {
+        position: sticky;
+        top: 0;
+        background: #ffffff;
+        padding: 0.85rem 1.5rem;
+        box-shadow: 0 2px 4px rgb(0 0 0 / 0.1);
+        z-index: 1000;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-shrink: 0; /* Prevents header from shrinking */
+      }
+
+      header .logo {
+        font-weight: 700;
+        font-size: 1.3rem;
+        display: flex;
+        align-items: center;
+        gap: 15px; /* Increased gap for better spacing */
+      }
+
+      header .logo img {
+        height: 85px;
+        width: auto;
+      }
+
+      nav ul {
+        list-style: none;
+        display: flex;
+        gap: 1.7rem;
+      }
+
+      nav li a {
+        font-weight: 600;
+        font-size: 1rem;
+        padding: 0.3rem 0.4rem;
+        display: block;
+        text-decoration: none;
+        color: #12c412; /* Theme color for links */
+        border-radius: 4px;
+        transition: background-color 0.2s ease-in-out, color 0.2s ease-in-out;
+      }
+
+      nav li a:hover {
+        background-color: rgba(18, 196, 18, 0.1); /* Subtle hover effect */
+      }
+
+      nav li a:focus {
+        outline: 2px solid #12c412;
+        outline-offset: 2px;
+      }
+
+      /* --- Main Content Area (Map and Controls) --- */
+      #map {
+        display: flex;
+        flex-grow: 1; /* Allows this section to fill remaining vertical space */
+        height: calc(
+          100vh - 117px
+        ); /* Adjusts height based on header's approximate size */
+      }
+
+      /* --- Left Sidebar (Controls) --- */
+      #left {
+        flex-basis: 300px; /* Fixed width for the sidebar */
+        flex-shrink: 0;
+        padding: 1.5rem;
+        background-color: #ffffff;
+        border-right: 1px solid #e0e0e0;
+        overflow-y: auto; /* Adds scroll if content is too long */
+      }
+
+      #left form label {
+        font-weight: 600;
+        display: block;
+        margin-bottom: 0.5rem;
+        color: #333;
+      }
+
+      #left form select {
+        width: 100%;
+        padding: 0.75rem;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        font-size: 1rem;
+        background-color: #fff;
+        cursor: pointer;
+      }
+
+      #left form select:focus {
+        outline: none;
+        border-color: #12c412;
+        box-shadow: 0 0 0 2px rgba(18, 196, 18, 0.2);
+      }
+
+      #left form input[type="button"] {
+        width: 100%;
+        padding: 0.8rem;
+        margin-top: 1rem;
+        font-size: 1rem;
+        font-weight: 700;
+        color: #ffffff;
+        background-color: #12c412; /* Theme color */
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        transition: background-color 0.2s ease;
+      }
+
+      #left form input[type="button"]:hover {
+        background-color: #10a310; /* Slightly darker green on hover */
+      }
+
+      /* --- Right Side (Map Display) --- */
+      #right {
+        flex-grow: 1; /* Allows map to fill remaining horizontal space */
+        display: flex;
+      }
+
+      #right iframe {
+        width: 100%;
+        height: 100%;
+        border: none; /* Modern standard for no border */
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <div
+        class="logo"
+        role="banner"
+        aria-label="Government of India, VanAdhikar and FRA Atlas"
+      >
+        <img
+          src="./Assests/satyamev-jayate.jpg"
+          alt="Government Emblem"
+          aria-hidden="true"
+        />
+        <div>
+          <div style="font-size: medium; color: rgb(18, 196, 18)">
+            वन अधिकार नक्शा सहायक
+          </div>
+          <div style="font-size: large; color: rgb(18, 196, 18)">
+            VanAdhikar & FRA Atlas & DSS
+          </div>
+          <div style="font-size: small; color: rgb(18, 196, 18)">
+            Forest Rights Act, 2006(with Amendment Rules 2012)
+          </div>
+        </div>
+      </div>
+      <nav>
+        <ul>
+          <li><a href="#home" tabindex="0">Home</a></li>
+          <li><a href="#about" tabindex="0">About</a></li>
+          <li><a href="#features" tabindex="0">Features</a></li>
+          <li><a href="#map" tabindex="0">Map</a></li>
+          <li><a href="#dashboard" tabindex="0">Dashboard</a></li>
+          <li><a href="#records" tabindex="0">Records</a></li>
+          <li><a href="#assets" tabindex="0">Assets</a></li>
+          <li><a href="#schemes" tabindex="0">Schemes</a></li>
+          <li><a href="#decision" tabindex="0">Decision Support</a></li>
+        </ul>
+      </nav>
+    </header>
+
+    <!-- map and options -->
+    <div id="map">
+      <div id="left">
+        <form action="/submit" method="post">
+          <label for="course"> Select State: </label>
+          <select name="state" id="state">
+            <option value="Telangana" selected>Telangana</option>
+            <option value="Uttar Pradesh">Uttar Pradesh</option>
+            <option value="Bihar">Bihar</option>
+            <option value="Madhya Pradesh">Madhya Pradesh</option>
+          </select>
+
+          <br /><br />
+          <input type="button" value="Show" />
+        </form>
+      </div>
+      <div id="right">
+        <iframe
+          src="http://tgracgis.telangana.gov.in/Bhunaksha/BN/home.aspx"
+          frameborder="0"
+        ></iframe>
+      </div>
+    </div>
+    <script>
+      // Wait until the DOM is fully loaded before running the script
+      document.addEventListener("DOMContentLoaded", () => {
+        // Get the necessary HTML elements
+        const stateSelect = document.getElementById("state");
+        const showButton = document.querySelector('input[type="button"]');
+        const mapFrame = document.querySelector("#right iframe");
+
+        // Create a map of state names to their corresponding Bhunaksha URLs
+        const stateUrls = {
+          Telangana: "http://tgracgis.telangana.gov.in/Bhunaksha/BN/home.aspx",
+          "Uttar Pradesh": "http://upbhunaksha.gov.in/",
+          Bihar: "http://bhunaksha.bihar.gov.in/",
+          "Madhya Pradesh": "https://mpbhulekh.gov.in/mpbhunaksha.do",
+        };
+
+        // Define the function that updates the map
+        const updateMap = () => {
+          // Get the value of the currently selected option
+          const selectedState = stateSelect.value;
+
+          // Find the corresponding URL from our map
+          const newUrl = stateUrls[selectedState];
+
+          // Check if a valid URL was found and update the iframe's src
+          if (newUrl) {
+            console.log(`Loading map for: ${selectedState}`); // For debugging
+            mapFrame.src = newUrl;
+          } else {
+            console.error(`URL for state "${selectedState}" not found.`);
+          }
+        };
+
+        // Add a 'click' event listener to the "Show" button
+        showButton.addEventListener("click", updateMap);
+      });
+    </script>
+  </body>
+</html>
