@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=\, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Vanadhikar Map</title>
     <style>
       /* --- General Body and Font Styles --- */
@@ -11,7 +11,6 @@
         margin: 0;
         padding: 0;
       }
-
       body {
         font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
           Helvetica, Arial, sans-serif;
@@ -21,8 +20,7 @@
         overflow: hidden; /* Prevents scrolling on the body */
         background-color: #f9f9f9;
       }
-
-      /* --- Header & Navigation (Refined from your HTML) --- */
+      /* --- Header & Navigation --- */
       header {
         position: sticky;
         top: 0;
@@ -33,74 +31,62 @@
         display: flex;
         justify-content: space-between;
         align-items: center;
-        flex-shrink: 0; /* Prevents header from shrinking */
+        flex-shrink: 0;
       }
-
       header .logo {
         font-weight: 700;
         font-size: 1.3rem;
         display: flex;
         align-items: center;
-        gap: 15px; /* Increased gap for better spacing */
+        gap: 15px;
       }
-
       header .logo img {
         height: 85px;
         width: auto;
       }
-
       nav ul {
         list-style: none;
         display: flex;
         gap: 1.7rem;
       }
-
       nav li a {
         font-weight: 600;
         font-size: 1rem;
         padding: 0.3rem 0.4rem;
         display: block;
         text-decoration: none;
-        color: #12c412; /* Theme color for links */
+        color: #12c412;
         border-radius: 4px;
         transition: background-color 0.2s ease-in-out, color 0.2s ease-in-out;
       }
-
       nav li a:hover {
-        background-color: rgba(18, 196, 18, 0.1); /* Subtle hover effect */
+        background-color: rgba(18, 196, 18, 0.1);
       }
-
       nav li a:focus {
         outline: 2px solid #12c412;
         outline-offset: 2px;
       }
-
-      /* --- Main Content Area (Map and Controls) --- */
+      /* --- Main Content Area --- */
       #map {
         display: flex;
-        flex-grow: 1; /* Allows this section to fill remaining vertical space */
-        height: calc(
-          100vh - 117px
-        ); /* Adjusts height based on header's approximate size */
+        flex-grow: 1;
+        height: calc(100vh - 117px);
       }
-
       /* --- Left Sidebar (Controls) --- */
       #left {
-        flex-basis: 300px; /* Fixed width for the sidebar */
+        flex-basis: 300px;
         flex-shrink: 0;
         padding: 1.5rem;
         background-color: #ffffff;
         border-right: 1px solid #e0e0e0;
-        overflow-y: auto; /* Adds scroll if content is too long */
+        overflow-y: auto;
       }
-
       #left form label {
         font-weight: 600;
         display: block;
         margin-bottom: 0.5rem;
         color: #333;
       }
-
       #left form select {
         width: 100%;
         padding: 0.75rem;
@@ -110,13 +96,11 @@
         background-color: #fff;
         cursor: pointer;
       }
-
       #left form select:focus {
         outline: none;
         border-color: #12c412;
         box-shadow: 0 0 0 2px rgba(18, 196, 18, 0.2);
       }
-
       #left form input[type="button"] {
         width: 100%;
         padding: 0.8rem;
@@ -124,27 +108,24 @@
         font-size: 1rem;
         font-weight: 700;
         color: #ffffff;
-        background-color: #12c412; /* Theme color */
+        background-color: #12c412;
         border: none;
         border-radius: 5px;
         cursor: pointer;
         transition: background-color 0.2s ease;
       }
-
       #left form input[type="button"]:hover {
-        background-color: #10a310; /* Slightly darker green on hover */
+        background-color: #10a310;
       }
-
       /* --- Right Side (Map Display) --- */
       #right {
-        flex-grow: 1; /* Allows map to fill remaining horizontal space */
+        flex-grow: 1;
         display: flex;
       }
-
       #right iframe {
         width: 100%;
         height: 100%;
-        border: none; /* Modern standard for no border */
+        border: none;
       }
     </style>
   </head>
@@ -174,31 +155,29 @@
       </div>
       <nav>
         <ul>
-          <li><a href="#home" tabindex="0">Home</a></li>
-          <li><a href="#about" tabindex="0">About</a></li>
-          <li><a href="#features" tabindex="0">Features</a></li>
-          <li><a href="#map" tabindex="0">Map</a></li>
-          <li><a href="#dashboard" tabindex="0">Dashboard</a></li>
-          <li><a href="#records" tabindex="0">Records</a></li>
-          <li><a href="#assets" tabindex="0">Assets</a></li>
-          <li><a href="#schemes" tabindex="0">Schemes</a></li>
-          <li><a href="#decision" tabindex="0">Decision Support</a></li>
+          <li><a href="#home">Home</a></li>
+          <li><a href="#about">About</a></li>
+          <li><a href="#features">Features</a></li>
+          <li><a href="#map">Map</a></li>
+          <li><a href="#dashboard">Dashboard</a></li>
+          <li><a href="#records">Records</a></li>
+          <li><a href="#assets">Assets</a></li>
+          <li><a href="#schemes">Schemes</a></li>
+          <li><a href="#decision">Decision Support</a></li>
         </ul>
       </nav>
     </header>
 
-    <!-- map and options -->
     <div id="map">
       <div id="left">
-        <form action="/submit" method="post">
-          <label for="course"> Select State: </label>
+        <form>
+          <label for="state"> Select State: </label>
           <select name="state" id="state">
             <option value="Telangana" selected>Telangana</option>
             <option value="Uttar Pradesh">Uttar Pradesh</option>
             <option value="Bihar">Bihar</option>
             <option value="Madhya Pradesh">Madhya Pradesh</option>
           </select>
-
           <br /><br />
           <input type="button" value="Show" />
         </form>
@@ -222,7 +201,7 @@
         const stateUrls = {
           Telangana: "https://tgracgis.telangana.gov.in/Bhunaksha/BN/home.aspx",
           "Uttar Pradesh": "https://upbhunaksha.gov.in/",
-          Bihar: "https://bhunaksha.bihar.gov.in/",
+          Bihar: "https://bhunaksha.bihar.gov.in/10/indexmain.jsp",
           "Madhya Pradesh": "https://mpbhulekh.gov.in/mpbhunaksha.do",
         };
 
@@ -230,10 +209,8 @@
         const updateMap = () => {
           // Get the value of the currently selected option
           const selectedState = stateSelect.value;
-
           // Find the corresponding URL from our map
           const newUrl = stateUrls[selectedState];
-
           // Check if a valid URL was found and update the iframe's src
           if (newUrl) {
             console.log(`Loading map for: ${selectedState}`); // For debugging
@@ -243,7 +220,12 @@
           }
         };
 
-        // Add a 'click' event listener to the "Show" button
+        // ✅ **THIS IS THE CORRECTED PART** ✅
+        // Add a 'change' event listener to the state dropdown
+        stateSelect.addEventListener("change", updateMap);
+
+        // This listener for the button is now redundant, but we can leave it
+        // in case the user prefers clicking the button.
         showButton.addEventListener("click", updateMap);
       });
     </script>
